@@ -12,7 +12,7 @@ class ApiError extends Error{
         this.data = null
         this.message = message
         this.success = false
-        this.errors = errors
+        this.error = error
 
         //niche nhi bhi samja to jane do as it likh dena
         if(statck){
