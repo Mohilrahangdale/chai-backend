@@ -14,5 +14,14 @@ app.use(express.urlencoded({extended:true, limit:"16kb"}))//jb data url se aata 
 app.use(express.static("public"))//basically jb file s vagere aayengi tb store krane ke kaam aata hai
 app.use(cookieParser())
 
+//routes import 
+import userRouter from './routes/user.routes.js'
+
+
+//routes declaration
+app.use('/api/v1/users', userRouter)//use isiliye kyuki hm route ko import karva rhe hai
+
+
+
 
 export { app }
