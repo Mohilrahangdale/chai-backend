@@ -16,7 +16,8 @@ import fs from 'fs';
                 resource_type: 'auto'//ye detect kar lega ki file image hai ya video ya fir koi aur
             })
             //file has been uploaded successfully
-            console.log("file uploaded on cloudinary", response.url);
+            //console.log("file uploaded on cloudinary", response.url);
+            fs.unlinkSync(localFilePath) //delete the file from local storage after successful upload on cloudinary
             return response;
             
         } catch (error) {
