@@ -3,6 +3,7 @@ import { asyncHandler } from '../utils/asyncHandler.js';
 import { ApiError } from '../utils/ApiError.js';
 import { User } from '../models/user.model.js';
 import { uploadOnCloudinary } from '../utils/cloudinary.js';
+import jwt from 'jsonwebtoken';
 
 
 const generateAccessAndRefreshTokens = async(userId) => {
@@ -174,9 +175,45 @@ const logoutUser = asyncHandler(async (req, res) => {
 
 })
 
+const refreshAccessToken = asyncHandler(async (req, res) => {
+    const incomingRefrreshToken = req.cookies.refreshToken || req.body.refreshToken
+
+    if(!incomingRefrreshToken){
+        throw new ApiError(401, "Refresh token is required")
+    }
+    const decodedToken = jwt.verify(incomingRefrreshToken, process.env.REFRESH_TOKEN_SECRET)
+
+    const user = await User.findById(decodedToken?._id)
+
+    if(!user ){
+        throw new ApiError(401, "Invalid refresh token")
+    }
+
+    if(incomingRefrreshToken !== user?.refreshToken){
+        throw new ApiError(401, "Refresh token mismatch")
+    }
+
+    const options = {
+        httpOnly: true,
+        secure: true
+    }
+
+    const { accessToken, newRefreshToken } = await generateAccessAndRefreshTokens(user._id)
+
+    return res
+    .status(200)
+    .cookie("accessToken", accessToken, options)
+    .cookie("refreshToken", newRefreshToken, options)
+    .json(
+        new ApiResponse(200, { accessToken, refreshToken : newRefreshToken }, "Access token refreshed successfully")
+    )
+})
+
+
 
 
 
 export { registerUser,
-    loginUser, logoutUser
+    loginUser, logoutUser,
+    refreshAccessToken
 };
